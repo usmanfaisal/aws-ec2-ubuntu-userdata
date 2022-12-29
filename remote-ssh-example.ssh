@@ -1,0 +1,36 @@
+#!/bin/bash
+
+_remote="44.204.42.168"
+_user="ubuntu"
+
+echo "Local system name: $HOSTNAME"
+echo "Local date and time: $(date)"
+
+# copy build foder to remote server directory
+scp cloudwatch-logs-s3-aethna.zip $_user@$_remote:/var/www/html/
+
+echo
+echo "*** Running commands on remote host named $_remote ***"
+echo
+
+# connect to remote server
+ssh -T $_user@$_remote <<'EOL'
+	now="$(date)"
+	name="$HOSTNAME"
+	up="$(uptime)"
+	echo "Server name is $name"
+	echo "Server date and time is $now"
+	echo "Server uptime: $up"
+
+	# go to desired directory
+	cd /var/www/html/
+
+	# unzip build folder.
+	unzip cloudwatch-logs-s3-aethna.zip -d cloudwatch-logs-s3-aethna
+
+	# restart PM2
+	# pm2 restart api-server
+
+
+	echo "Bye"
+EOL
